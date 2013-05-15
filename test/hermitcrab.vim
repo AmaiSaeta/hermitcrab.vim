@@ -8,26 +8,32 @@ scriptencoding utf-8
 " Run tests
 " 	:VimTest
 
-let s:isWin = has('win64') || has('win32') || has('win16') || has('win95')
-let s:isDos = has('dos32') || has('dos16')
+function! s:initValues() " {{{
+	let s:isWin = has('win64') || has('win32') || has('win16') || has('win95')
+	let s:isDos = has('dos32') || has('dos16')
 
-" Some options are environment dependeny.
-" [WARNING] Dependent the environment (OS etc.).
-" [WARNING] If tests are completly succeeded on the one environment,
-" [WARNING] but other environments possibly failed tests .
-let s:shellOptionNames = [
-\	'shell', 'shellcmdflag', 'shellquote', 'shellredir',
-\	'shelltemp', 'shellxquote'
-\ ]
-if has('quickfix')
-	call add(s:shellOptionNames, 'shellpipe')
-endif
-if s:isWin || s:isDos || has('os2')
-	call add(s:shellOptionNames, 'shellslash')
-endif
-if has('amiga')
-	call add(s:shellOptionNames, 'shelltype')
-endif
+	" Some options are environment dependeny.
+	" [WARNING] Dependent the environment (OS etc.).
+	" [WARNING] If tests are completly succeeded on the one environment,
+	" [WARNING] but other environments possibly failed tests .
+	let s:shellOptions = [
+	\	{ 'name': 'shell',        'type': type('') },
+	\	{ 'name': 'shellcmdflag', 'type': type('') },
+	\	{ 'name': 'shellquote',   'type': type('') },
+	\	{ 'name': 'shellredir',   'type': type('') },
+	\	{ 'name': 'shelltemp',    'type': type(1) },
+	\	{ 'name': 'shellxquote',  'type': type('') }
+	\ ]
+	if has('quickfix')
+		call add(s:shellOptions, { 'name': 'shellpipe', 'type': type('') })
+	endif
+	if s:isWin || s:isDos || has('os2')
+		call add(s:shellOptions, { 'name': 'shellslash', 'type': type(1) })
+	endif
+	if has('amiga')
+		call add(s:shellOptions, { 'name': 'shelltype', 'type': type(1) })
+	endif
+endfunction " }}}
 
 " Print optional description when failing test.
 " Please substitute this function's reference to an assert object of
@@ -50,59 +56,52 @@ function! s:refugeVariables(suite)
 	\	'g:hermitcrab_options': deepcopy(g:hermitcrab_options)
 	\ }
 
-	for name in s:shellOptionNames
-		call extend(a:suite._refuges, { name : eval('&' . name) })
+	let a:suite._refuges.shellopts = {}
+	for opt in s:shellOptions
+		call extend(a:suite._refuges.shellopts, { opt['name'] : eval('&' . opt['name']) })
 	endfor
 endfunction
 function! s:repairVariables(suite)
 	let g:hermitcrab_options = a:suite._refuges['g:hermitcrab_options']
 	
-	for name in s:shellOptionNames
-		execute 'let &' . name . '= a:suite._refuges["' . name . '"]'
+	for name in keys(a:suite._refuges.shellopts)
+		execute 'let &' . name . '= a:suite._refuges.shellopts["' . name . '"]'
 	endfor
 endfunction
 
 function! s:getShellOptions() " {{{
 	let options = {}
-	for name in s:shellOptionNames
-		let options[name] = eval('&'.name)
+	for opt in s:shellOptions
+		let options[opt['name']] = eval('&' . opt['name'])
 	endfor
 	return options
 endfunction " }}}
 
 function! s:generateDummyOptions(shelltype, shellslash, shelltemp) " {{{
-	let opts = {
-	\	'shell': 'DUMMY',
-	\	'shellcmdflag': 'DUMMYCMDFLAG',
-	\	'shellquote': 'DUMMYQUOTE',
-	\	'shellredir': 'DUMMYREDIR',
-	\	'shelltemp': a:shelltemp,
-	\	'shellxquote': 'DUMMYXQUOTE'
-	\ }
-	if has('quickfix')
-		call extend(opts, {'shellpipe': 'DUMMYPIPE'})
-	endif
-	if s:isWin || s:isDos || has('os2')
-		call extend(opts, {'shellslash': a:shellslash})
-	endif
-	if has('amiga')
-		call extend(opts, {'shelltype': a:shelltype})
-	endif
-	return opts
+	let res = {}
+	for opt in s:shellOptions
+		let name = opt['name']
+		if match(name, '^shell\(type\|slash\|temp\)$') != -1
+			let res[name] = eval('a:' . name)
+		elseif opt['type'] == type('')
+			let res[name] = 'dummy-' . name
+		else
+			throw "NOT IMPLEMENTED."
+		endif
+	endfor
+	return res
 endfunction " }}}
 
 function! s:setDummyOption(name) " {{{
-	let origin = g:hermitcrab_options
-	let g:hermitcrab_options = extend(
-	\	g:hermitcrab_options,
-	\	{ a:name : s:generateDummyOptions(
-	\		!&shelltype, !&shellslash, !&shelltemp) }
-	\ )
+	let origin = deepcopy(g:hermitcrab_options)
+	let dummy = s:generateDummyOptions(!&shelltype, !&shellslash, !&shelltemp)
+	call extend(g:hermitcrab_options, {a:name : dummy})
 	return origin
 endfunction " }}}
 
 let s:suite = vimtest#new('Always containe same value as the option of the Vim.') " {{{
 function! s:suite.startup()
+	call s:initValues()
 	call extend(self.assert, {'equals_M': function('s:vimtest_assertEquals_M')})
 endfunction
 function! s:suite.setup()
@@ -123,7 +122,6 @@ function! s:suite.test_defaultVariableValues()
 		endif
 	endfor
 
-"	call self.assert.true(existsSame)
 	call self.assert.fail(
 	\	"Default setting is not found:\n"
 	\	. "\tsearched: " . string(expected) . "\n"
@@ -132,6 +130,9 @@ endfunction
 " }}}
 
 let s:suite = vimtest#new('Tests for :HermitCrabSwitch') " {{{
+function! s:suite.startup()
+	call s:initValues()
+endfunction
 function! s:suite.setup()
 	call s:refugeVariables(self)
 	call s:setDummyOption('DUMMY')
@@ -142,7 +143,7 @@ endfunction
 
 function! s:suite.test_HermitCrabSwitch_switchToExists()
 	let defaultOption = g:hermitcrab_options[
-	\	filter(keys(g:hermitcrab_options), "v:val != 'DUMMY'")[0]
+	\	keys(g:hermitcrab_options)[0]
 	\ ]
 
 	HermitCrabSwitch DUMMY
@@ -181,6 +182,9 @@ endfunction
 " }}}
 
 let s:suite = vimtest#new(':HermitCrabSwitchRun command') " {{{
+function! s:suite.startup()
+	call s:initValues()
+endfunction
 function! s:suite.setup()
 	call s:refugeVariables(self)
 	call s:setDummyOption('DUMMY')
@@ -217,6 +221,9 @@ endfunction
 " Omitted tests for hermitcrab#run(). These tests is same for :HermitCrabSwitch.
 
 let s:suite = vimtest#new('Test for hermitcrab#getShellOptions()') " {{{
+function! s:suite.startup()
+	call s:initValues()
+endfunction
 function! s:suite.setup()
 	call s:refugeVariables(self)
 	call s:setDummyOption('DUMMY')
@@ -238,6 +245,7 @@ endfunction
 
 let s:suite = vimtest#new('Test for hermitcrab#setOptions')	" {{{
 function! s:suite.startup()
+	call s:initValues()
 	call extend(self.assert, {'equals_M': function('s:vimtest_assertEquals_M')})
 endfunction
 function! s:suite.setup()
@@ -253,7 +261,8 @@ function! s:suite.test_hermitcrab_setOptions_setAll()
 
 	call hermitcrab#setOptions(dummyOptions)
 
-	for name in s:shellOptionNames
+	for opt in s:shellOptions
+		let name = opt['name']
 		call self.assert.equals_M(eval('&' . name), dummyOptions[name],
 		\	'Failed asserting &' . name)
 	endfor
@@ -263,7 +272,8 @@ function! s:suite.test_hermitcrab_setOptions_NotSet()
 	" Omitted options' values is used the Vim default value.
 	
 	let vimDefault = {}
-	for name in s:shellOptionNames
+	for opt in s:shellOptions
+		let name = opt['name']
 		" Get the Vim default values.
 		execute 'let currentValue = &' . name
 		execute 'set' name . '&'
@@ -280,9 +290,9 @@ function! s:suite.test_hermitcrab_setOptions_setFailureValue()
 	let origLang = v:lang
 	let origin = s:getShellOptions()
 	let expected = {}
-	for name in s:shellOptionNames
+	for opt in s:shellOptions
 		" The dictionary can not cast to the string.
-		let expected[name] = {}
+		let expected[opt['name']] = {}
 	endfor
 
 	language messages C
@@ -309,6 +319,9 @@ endfunction
 " }}}
 
 let s:suite = vimtest#new('Tests for hermitcrab#getCompletion()')	" {{{
+function! s:suite.startup()
+	call s:initValues()
+endfunction
 function! s:suite.test_hermitcrab_getCompletion()
 	let names = []
 	for name in keys(g:hermitcrab_options)
