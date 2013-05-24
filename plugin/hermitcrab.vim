@@ -37,11 +37,20 @@ function! s:getShellNameFromShellOpt(opt)
 	return s:getShellNameFromPath(path)
 endfunction
 
+" Initialized g:hermitcrab_options.
+function! s:initConfigureVariable()
 let s:defaultOpts = hermitcrab#getShellOptions()
 call s:useVariable('g:hermitcrab_options', 
 \	{ s:getShellNameFromShellOpt(s:defaultOpts['shell']): s:defaultOpts },
 \	1
 \ )
+endfunction
+" When Vim load plugin scripts, some option's values is setted wrong
+" value. Specifically, 'shellpipe' and 'shellredir' at version 7.3.46
+" for Windows.
+" [TODO] un-:autocmd-ized / un-function-ized this process when fix this
+" bug(?).
+autocmd VimEnter * call s:initConfigureVariable()
 
 function! s:switchShellAtOnce(cmd)
 	let name = matchstr(a:cmd, '^\S\+')

@@ -141,7 +141,7 @@ function! s:suite.teardown()
 	call s:repairVariables(self)
 endfunction
 
-function! s:suite.test_HermitCrabSwitch_switchToExists()
+function! s:suite.test_HermitCrabSwitch_switchoExistsName()
 	let defaultOption = g:hermitcrab_options[
 	\	keys(g:hermitcrab_options)[0]
 	\ ]
@@ -153,7 +153,7 @@ function! s:suite.test_HermitCrabSwitch_switchToExists()
 	call self.assert.equals(g:hermitcrab_options['DUMMY'], actualOptions)
 endfunction
 
-function! s:suite.test_HermitCrabSwitch_switchToNotExists()
+function! s:suite.test_HermitCrabSwitch_switchToNotExistsName()
 	let origin = s:getShellOptions()
 	
 	"call self.assert.throw("hermitcrab.vim\tdescription:DUMMY is not found in g:hermitcrab_options.")
@@ -216,8 +216,75 @@ endfunction
 " [FIXME][TODO] Test :HermitCrabSwitchRun. How?
 " }}}
 
-" Omitted tests for hermitcrab#switch(). These tests is same for :HermitCrabSwitch.
-"
+let s:suite = vimtest#new('Test for hermitcrab#switch()') " {{{
+function! s:suite.startup()
+	call s:initValues()
+endfunction
+function! s:suite.setup()
+	call s:refugeVariables(self)
+endfunction
+function! s:suite.teardown()
+	call s:repairVariables(self)
+endfunction
+
+" Omitted some tests for hermitcrab#switch(). These tests is same for :HermitCrabSwitch.
+function! s:suite.test_hermitcrab_switch_useDictionary()
+	let opts = s:generateDummyOptions(!&shelltype, !&shellslash, !&shelltemp)
+
+	call hermitcrab#switch(opts)
+
+	call self.assert.equals(s:getShellOptions(), opts)
+endfunction
+
+function! s:suite.test_hermitCrab_switch_useEmptyDictionary()
+	" Omitted options' values is used the Vim default value.
+
+	let vimDefault = {}
+	for opt in s:shellOptions
+		let name = opt['name']
+		" Get the Vim default values.
+		execute 'let currentValue = &' . name
+		execute 'set' name . '&'
+		execute 'let vimDefault["' . name . '"] = &' . name
+		execute 'let &' . name '= currentValue'
+	endfor
+
+	call hermitcrab#switch({})
+
+	call self.assert.equals(s:getShellOptions(), vimDefault)
+endfunction
+function! s:suite.test_hermitcrab_switch_setFailureValue()
+	let origLang = v:lang
+	let origin = s:getShellOptions()
+	let expected = {}
+	for opt in s:shellOptions
+		" The dictionary can not cast to the string.
+		let expected[opt['name']] = {}
+	endfor
+
+	language messages C
+
+	" Now, vimtest cannot asserts after exception assertion...
+	"" Maybe 'using' is typo by ver7.3.46
+	"call self.assert.throw("hermitcrab.vim\tdescription:using Dictionary as a String")
+	"call hermitcrab#setOptions(expected)
+	let raisedException = 0
+	try
+		call hermitcrab#switch(expected)
+	catch
+		let raisedException = 1
+		" Maybe 'using' is a typo by Vim ver7.3.46
+		call self.assert.equals(v:exception, "hermitcrab.vim\tdescription:using Dictionary as a String")
+	finally
+		call self.assert.true(raisedException)
+	endtry
+
+	call self.assert.equals(s:getShellOptions(), origin)
+
+	execute 'language messages' origLang
+endfunction
+" }}}
+
 " Omitted tests for hermitcrab#run(). These tests is same for :HermitCrabSwitch.
 
 let s:suite = vimtest#new('Test for hermitcrab#getShellOptions()') " {{{
@@ -240,81 +307,6 @@ function! s:suite.test_hermitcrab_getShellOptions()
 
 	call self.assert.equals(
 	\	hermitcrab#getShellOptions(), s:getShellOptions())
-endfunction
-" }}}
-
-let s:suite = vimtest#new('Test for hermitcrab#setOptions')	" {{{
-function! s:suite.startup()
-	call s:initValues()
-	call extend(self.assert, {'equals_M': function('s:vimtest_assertEquals_M')})
-endfunction
-function! s:suite.setup()
-	call s:refugeVariables(self)
-endfunction
-function! s:suite.teardown()
-	call s:repairVariables(self)
-endfunction
-
-function! s:suite.test_hermitcrab_setOptions_setAll()
-	let dummyOptions = s:generateDummyOptions(
-	\	!&shelltype, !&shellslash, !&shelltemp)
-
-	call hermitcrab#setOptions(dummyOptions)
-
-	for opt in s:shellOptions
-		let name = opt['name']
-		call self.assert.equals_M(eval('&' . name), dummyOptions[name],
-		\	'Failed asserting &' . name)
-	endfor
-endfunction
-
-function! s:suite.test_hermitcrab_setOptions_NotSet()
-	" Omitted options' values is used the Vim default value.
-	
-	let vimDefault = {}
-	for opt in s:shellOptions
-		let name = opt['name']
-		" Get the Vim default values.
-		execute 'let currentValue = &' . name
-		execute 'set' name . '&'
-		execute 'let vimDefault["' . name . '"] = &' . name
-		execute 'let &' . name '= currentValue'
-	endfor
-
-	call hermitcrab#setOptions({})
-
-	call self.assert.equals(s:getShellOptions(), vimDefault)
-endfunction
-
-function! s:suite.test_hermitcrab_setOptions_setFailureValue()
-	let origLang = v:lang
-	let origin = s:getShellOptions()
-	let expected = {}
-	for opt in s:shellOptions
-		" The dictionary can not cast to the string.
-		let expected[opt['name']] = {}
-	endfor
-
-	language messages C
-
-	" Now, vimtest cannot asserts after exception assertion...
-	"" Maybe 'using' is typo by ver7.3.46
-	"call self.assert.throw("hermitcrab.vim\tdescription:using Dictionary as a String")
-	"call hermitcrab#setOptions(expected)
-	let raisedException = 0
-	try
-		call hermitcrab#setOptions(expected)
-	catch
-		let raisedException = 1
-		" Maybe 'using' is a typo by Vim ver7.3.46
-		call self.assert.equals(v:exception, "hermitcrab.vim\tdescription:using Dictionary as a String")
-	finally
-		call self.assert.true(raisedException)
-	endtry
-
-	call self.assert.equals(s:getShellOptions(), origin)
-
-	execute 'language messages' origLang
 endfunction
 " }}}
 

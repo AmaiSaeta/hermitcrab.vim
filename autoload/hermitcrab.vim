@@ -59,7 +59,7 @@ function! hermitcrab#getShellOptions()
 	return opts
 endfunction
 
-function! hermitcrab#setOptions(param)
+function! s:setOptions(param)
 	let origin = hermitcrab#getShellOptions()
 
 	try
@@ -74,17 +74,20 @@ function! hermitcrab#setOptions(param)
 		endfor
 	catch
 		" rollback
-		call hermitcrab#setOptions(origin)
+		call s:setOptions(origin)
 		throw s:raiseException()
 	endtry
 endfunction
 
-function! hermitcrab#switch(name)
+function! hermitcrab#switch(arg)
 	try
-		call hermitcrab#setOptions(g:hermitcrab_options[a:name])
+		let opts = (type(a:arg) == type({}))
+		\	? a:arg : g:hermitcrab_options[a:arg]
 	catch /^Vim\%((\a\+)\)\=:E716/
-		throw s:raiseException(a:name . ' is not found in g:hermitcrab_options.')
+		throw s:raiseException(a:arg . ' is not found in g:hermitcrab_options.')
 	endtry
+
+	call s:setOptions(opts)
 endfunction
 
 function! hermitcrab#run(name, cmd)
@@ -94,7 +97,7 @@ function! hermitcrab#run(name, cmd)
 		call hermitcrab#switch(a:name)
 		execute '!' a:cmd
 	finally
-		call hermitcrab#setOptions(originOpts)
+		call s:setOptions(originOpts)
 	endtry
 endfunction
 
