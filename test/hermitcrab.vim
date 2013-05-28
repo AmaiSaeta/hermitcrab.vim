@@ -77,6 +77,18 @@ function! s:getShellOptions() " {{{
 	return options
 endfunction " }}}
 
+function! s:getDefaultShellOptions()
+	let options = {}
+	for opt in s:shellOptions
+		let name = opt['name']
+		let currentValue = eval('&' . name)
+		execute 'set' name . '&'
+		let options[name] = eval('&' . opt['name'])
+		execute 'let &' . name ' = currentValue'
+	endfor
+	return options
+endfunction
+
 function! s:generateDummyOptions(shelltype, shellslash, shelltemp) " {{{
 	let res = {}
 	for opt in s:shellOptions
@@ -237,17 +249,18 @@ function! s:suite.test_hermitcrab_switch_useDictionary()
 endfunction
 
 function! s:suite.test_hermitCrab_switch_useEmptyDictionary()
-	" Omitted options' values is used the Vim default value.
+	" Omitted option's values is used the Vim default value.
 
-	let vimDefault = {}
-	for opt in s:shellOptions
-		let name = opt['name']
-		" Get the Vim default values.
-		execute 'let currentValue = &' . name
-		execute 'set' name . '&'
-		execute 'let vimDefault["' . name . '"] = &' . name
-		execute 'let &' . name '= currentValue'
-	endfor
+	let vimDefault = s:getDefaultShellOptions()
+"	let vimDefault = {}
+"	for opt in s:shellOptions
+"		let name = opt['name']
+"		" Get the Vim default values.
+"		execute 'let currentValue = &' . name
+"		execute 'set' name . '&'
+"		execute 'let vimDefault["' . name . '"] = &' . name
+"		execute 'let &' . name '= currentValue'
+"	endfor
 
 	call hermitcrab#switch({})
 
@@ -286,6 +299,55 @@ endfunction
 " }}}
 
 " Omitted tests for hermitcrab#run(). These tests is same for :HermitCrabSwitch.
+let s:suite = vimtest#new('Test for hermitcrab#run()') " {{{
+function! s:suite.setup()
+	call s:refugeVariables(self)
+endfunction
+function! s:suite.teardown()
+	call s:repairVariables(self)
+endfunction
+
+function! s:suite.test_hermitcrab_run_useDictionary()
+	let options = s:getShellOptions()
+
+	call hermitcrab#run(
+	\	s:generateDummyOptions(!&shelltype, !&shellslash, !&shelltemp),
+	\	'vim --version')
+
+	call self.assert.equals(s:getShellOptions(), options)
+endfunction
+
+function! s:suite.test_hermitcrab_run_setFailureValue()
+	let origLang = v:lang
+	let origin = s:getShellOptions()
+	let expected = {}
+	for opt in s:shellOptions
+		" The dictionary can not cast to the string.
+		let expected[opt['name']] = {}
+	endfor
+
+	language messages C
+
+	" Now, vimtest cannot asserts after exception assertion...
+	"" Maybe 'using' is typo by ver7.3.46
+	"call self.assert.throw("hermitcrab.vim\tdescription:using Dictionary as a String")
+	"call hermitcrab#setOptions(expected)
+	let raisedException = 0
+	try
+		call hermitcrab#run(expected, 'vim --version')
+	catch
+		let raisedException = 1
+		" Maybe 'using' is a typo by Vim ver7.3.46
+		call self.assert.equals(v:exception, "hermitcrab.vim\tdescription:using Dictionary as a String")
+	finally
+		call self.assert.true(raisedException)
+	endtry
+
+	call self.assert.equals(s:getShellOptions(), origin)
+
+	execute 'language messages' origLang
+endfunction
+" }}}
 
 let s:suite = vimtest#new('Test for hermitcrab#getShellOptions()') " {{{
 function! s:suite.startup()
