@@ -1,0 +1,166 @@
+*hermitcrab.jax* シェル関係の設定を一括変更します。或いは好みのシェルでコマンドを実行します。
+
+hermitcrab.vim	
+								by 天井冴太
+
+==============================================================================
+CONTENTS						*hermitcrab-introduction*
+
+Introduction		|hermitcrab-introduction|
+Usage			|hermitcrab-usage|
+Interface		|hermitcrab-interface|
+	Commands	|hermitcrab-commands|
+	Functions	|hermitcrab-functions|
+	Variables	|hermitcrab-variables|
+Changelog		|hermitcrab-changelog|
+
+==============================================================================
+INTRODUCTION						*hermitcrab-contents*
+
+*hermitcrab.vim* は、シェル関係の設定を一括変更する手段を提供します。また、好
+みのシェルでコマンドを実行する手段を提供します。
+
+最新版:
+	https://github.com/AmaiSaeta/hermitcrab.vim
+
+==============================================================================
+USAGE							*hermitcrab-usage*
+
+前もって|g:hermitcrab_options|辞書変数に設定内容を記述しておきます。例えば次の
+例は、zsh用の設定を"ZSH"という名で、 Windows PowerShell 用の設定を"PS"という名
+で参照出来るようにしています。 >
+	:let g:hermitcrab_options = {
+	\	'ZSH': {
+	\		'shell': 'zsh',
+	\		'shellcmdflag': '-c',
+	\		'shellpipe': '2>&1 | tee',
+	\		'shellslash': 1,
+	\		'shellredir': '>&',
+	\		'shelltemp': 0,
+	\		'shellxquote': ''
+	\	},
+	\	'PS': {
+	\		'shell': 'powershell.exe',
+	\		'shellcmdflag: '-NoLogo -NonInteractive -Command',
+	\		'shellpipe': '>%s 2>&1',
+	\		'shellquote': '',
+	\		'shellredir': '>%s 2>&1',
+	\		'shellslash': 0,
+	\		'shelltemp': 1,
+	\		'shellxquote': ''
+	\	}
+	\ }
+<
+
+|:HermitCrabSwitch|や|hermitcrab#switch()|を用いると、シェル関係の設定を
+|g:hermitcrab_options|に定義した内容に一括変更出来ます。 >
+	" PowerShellに変更する例
+	:HermitCrabSwitch PS
+
+	:set shell?	" == 'powershell.exe'
+<
+
+|:HermitCrabRun|や|hermitcrab#run()|で、任意シェルでコマンドを実行する事が出来
+ます。 >
+	let engine = &shell
+
+	" zshでlsコマンドを実行
+	:HermitCrabRun ZSH ls
+
+	echo engine == &shell	" == 1; コマンド/関数実行後は元の設定に戻ります
+<
+
+==============================================================================
+INTERFACE						*hermitcrab-interface*
+
+------------------------------------------------------------------------------
+COMMANDS						*hermitcrab-commands*
+
+:HermitCrabSwitch {name}				*:HermitCrabSwitch*
+	シェル関係の設定を、|g:hermitcrab_options|の内容に基づいて変更します。
+	{name}は|g:hermitcrab_options|のキーの何れかでなければなりません。
+	|hermitcrab#switch()|のコマンド版です。
+
+:HermitCrabRun {name} {command}				*:HermitCrabRun*
+	|g:hermitcrab_options|の{name}の設定で、シェルのコマンド{command}を実行し
+	ます。
+	{name}は|g:hermitcrab_options|に設定したキーの何れかでなければなりませ
+	ん。
+	|hermitcrab#run()|のコマンド版です。
+
+------------------------------------------------------------------------------
+FUNCTIONS						*hermitcrab-functions*
+
+hermitcrab#switch({name})				*hermitcrab#switch()*
+	シェル関係の設定を、|g:hermitcrab_options|の内容に基づいて変更します。
+	{name}は|g:hermitcrab_options|に設定したキーの何れかでなければなりませ
+	ん。
+	|:HermitCrabSwitch|の関数版です。
+
+hermitcrab#switch({options})
+	シェル関係の設定を、引数{options}の内容に基づいて変更します。
+	{options}は|g:hermitcrab_options|の値として設定する辞書と同じフォーマット
+	です。
+
+hermitcrab#run({name}, {command})			*hermitcrab#run()*
+	|g:hermitcrab_options|の{name}に相当する設定で、シェルのコマンド{command}
+	を実行します。
+	{name}は|g:hermitcrab_options|に設定したキーの何れかでなければなりませ
+	ん。
+	|:HermitCrabRun|の関数版です。
+
+hermitcrab#run({options}, {command})
+	引数{options}に相当する設定で、シェルのコマンド{command}を実行します。
+	{options}は|g:hermitcrab_options|の値として設定する辞書と同じフォーマ
+	ットです。
+
+hermitcrab#getShellOptions()			 *hermitcrab#getShellOptions()*
+	現在のシェル関係の設定の内容を保持した辞書を返します。
+	返される辞書の形式は|g:hermitcrab_options|の値部分と同じ。即ち、名称を
+	キーとし、その設定値を値とする辞書です。
+
+------------------------------------------------------------------------------
+VARIABLES						*hermitcrab-variables*
+
+g:hermitcrab_options					*g:hermitcrab_options*
+	当プラグインで切り替えるシェル関係設定に名前を付けます。
+	辞書変数です。キーはそのシェル関係設定群に付ける名前です。また、値は実
+	際の設定内容になり、それは設定の名称をキーに、設定値を値とする辞書です。
+	ここで省略された設定については、Vimのデフォルト値が用いられます。
+	必ず、Vim起動時の値を保持する、そのシェル名('shell'からディレクトリパス
+	を除いた物)をキーとする値が追加されます。
+	以下は、zshとPowerShell用の値を設定する例です。 >
+		:let g:hermitcrab_options = {
+		\	'ZSH': {
+		\		'shell': 'zsh',
+		\		'shellcmdflag': '-c',
+		\		'shellpipe': '2>&1| tee',
+		\		'shellquote': '',
+		\		'shellredir': '>%s 2>&1',
+		\		'shellslash': 1,
+		\		'shelltemp': 1,
+		\		'shellxquote': '',
+		\		'shellxescape': ''
+		\	},
+		\	'PS': {
+		\		'shell': 'powershell.exe',
+		\		'shellcmdflag: '-NoLogo -NonInteractive -Command',
+		\		'shellpipe': '>%s 2>&1',
+		\		'shellquote': '',
+		\		'shellredir': '>%s 2>&1',
+		\		'shellslash': 0,
+		\		'shelltemp': 1,
+		\		'shellxquote': '(',
+		\		'shellxescape': '"&|<>()@^'
+		\	}
+		\ }
+<
+
+==============================================================================
+CHANGELOG						*hermitcrab-changelog*
+
+1.00.20130529
+	- 初版
+
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:
