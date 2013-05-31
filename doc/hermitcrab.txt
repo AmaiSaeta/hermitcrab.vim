@@ -1,0 +1,166 @@
+*hermitcrab.jax* Change shell options in a lump. Execute a command in the shell of your choice.
+
+hermitcrab.vim	
+								by AmaiSaeta
+
+==============================================================================
+CONTENTS						*hermitcrab-introduction*
+
+Introduction		|hermitcrab-introduction|
+Usage			|hermitcrab-usage|
+Interface		|hermitcrab-interface|
+	Commands	|hermitcrab-commands|
+	Functions	|hermitcrab-functions|
+	Variables	|hermitcrab-variables|
+Changelog		|hermitcrab-changelog|
+
+==============================================================================
+INTRODUCTION						*hermitcrab-contents*
+
+*hermitcrab.vim* provides a way to changing shell options in a lump.  And, It
+also provides a way to execute a command in the shell of your choice.
+
+latest version:
+	https://github.com/AmaiSaeta/hermitcrab.vim
+
+==============================================================================
+USAGE							*hermitcrab-usage*
+
+You need what set configs to the dictionary variable that named |g:hermitcrab_options|.
+e.g. set 2 configs; zsh's config named "ZSH", Windows PowerShell's config
+named "PS". >
+	:let g:hermitcrab_options = {
+	\	'ZSH': {
+	\		'shell': 'zsh',
+	\		'shellcmdflag': '-c',
+	\		'shellpipe': '2>&1 | tee',
+	\		'shellslash': 1,
+	\		'shellredir': '>&',
+	\		'shelltemp': 0,
+	\		'shellxquote': ''
+	\	},
+	\	'PS': {
+	\		'shell': 'powershell.exe',
+	\		'shellcmdflag: '-NoLogo -NonInteractive -Command',
+	\		'shellpipe': '>%s 2>&1',
+	\		'shellquote': '',
+	\		'shellredir': '>%s 2>&1',
+	\		'shellslash': 0,
+	\		'shelltemp': 1,
+	\		'shellxquote': ''
+	\	}
+	\ }
+<
+
+By using |:HermitCrabSwitch| or |hermitcrab#switch()|, you can change the shell
+options in |g:hermitcrab_options|. >
+	" e.g. Change for PowerShell
+	:HermitCrabSwitch PS
+
+	:set shell?	" == 'powershell.exe'
+<
+
+By using |:HermitCrabRun| or |hermitcrab#run()|, you can execute a command in the
+shell of your choice. >
+	let engine = &shell
+
+	" Execute "ls" command in zsh
+	:HermitCrabRun ZSH ls
+
+	echo engine == &shell	" == 1; Repair original configs after the command/function.
+<
+
+==============================================================================
+INTERFACE						*hermitcrab-interface*
+
+------------------------------------------------------------------------------
+COMMANDS						*hermitcrab-commands*
+
+:HermitCrabSwitch {name}				*:HermitCrabSwitch*
+	Change the shell options based on the value of |g:hermitcrab_options|.
+	{name} must be a key that exists in |g:hermitcrab_options|.
+	This is the command version of |hermitcrab#switch()|.
+
+:HermitCrabRun {name} {command}				*:HermitCrabRun*
+	Execute the {command} in the shell that is a setting named {name} in
+	|g:hermitcrab_options|.
+	{name} must be a key that exists in |g:hermitcrab_options|.
+	This is the command version of |hermitcrab#run()|.
+
+------------------------------------------------------------------------------
+FUNCTIONS						*hermitcrab-functions*
+
+hermitcrab#switch({name})				*hermitcrab#switch()*
+	Change the shell options based on the value of |g:hermitcrab_options|.
+	{name} must be a key that exists in |g:hermitcrab_options|.
+	This is the function version of |:HermitCrabSwitch|.
+
+hermitcrab#switch({options})
+	Change the shell options based on the value of |g:hermitcrab_options|.
+	{options} is a dictionary that is same of the value of
+	|g:hermitcrab_options|.
+
+hermitcrab#run({name}, {command})			*hermitcrab#run()*
+	Execute the {command} in the shell that is a setting named {name} in
+	|g:hermitcrab_options|.
+	{name} must be a key that exists in |g:hermitcrab_options|.
+	This is the function version of |:HermitCrabRun|.
+
+hermitcrab#run({options}, {command})
+	Execute the {command} in the shell that is a setting named {name} in
+	|g:hermitcrab_options|.
+	{options} is a dictionary that is same of the value of
+	|g:hermitcrab_options|.
+
+hermitcrab#getShellOptions()			 *hermitcrab#getShellOptions()*
+	Returned the dictionary that contains the shell options at now.
+	The dictionary's format is same of the value of |g:hermitcrab_options|,
+	that is a dictionary keyed by name, and the value the settings.
+
+------------------------------------------------------------------------------
+VARIABLES						*hermitcrab-variables*
+
+g:hermitcrab_options					*g:hermitcrab_options*
+	Provide names for the shell options used in this plugin.
+	This is a dictionary variable. The keys are names of shell options'
+	group. And The values are configs that is dictionary, The keys are
+	option's names, and the values are values of the option.
+	For setting omitted at the inner dictionary, used Vim default value.
+	Always, added value of Vim startup time, named the its shell name
+	(excluded directory path of 'shell').
+	e.g. set 2 configs; zsh's config named "ZSH", Windows PowerShell's
+	config named "PS". >
+		:let g:hermitcrab_options = {
+		\	'ZSH': {
+		\		'shell': 'zsh',
+		\		'shellcmdflag': '-c',
+		\		'shellpipe': '2>&1| tee',
+		\		'shellquote': '',
+		\		'shellredir': '>%s 2>&1',
+		\		'shellslash': 1,
+		\		'shelltemp': 1,
+		\		'shellxquote': '',
+		\		'shellxescape': ''
+		\	},
+		\	'PS': {
+		\		'shell': 'powershell.exe',
+		\		'shellcmdflag: '-NoLogo -NonInteractive -Command',
+		\		'shellpipe': '>%s 2>&1',
+		\		'shellquote': '',
+		\		'shellredir': '>%s 2>&1',
+		\		'shellslash': 0,
+		\		'shelltemp': 1,
+		\		'shellxquote': '(',
+		\		'shellxescape': '"&|<>()@^'
+		\	}
+		\ }
+<
+
+==============================================================================
+CHANGELOG						*hermitcrab-changelog*
+
+1.00.20130529
+	- The first release!
+
+==============================================================================
+ vim:tw=78:ts=8:ft=help:norl:
