@@ -23,6 +23,7 @@ function! s:initValues() " {{{
 	\	{ 'name': 'shellquote',   'type': type('') },
 	\	{ 'name': 'shellredir',   'type': type('') },
 	\	{ 'name': 'shelltemp',    'type': type(1) },
+	\	{ 'name': 'shellxescape', 'type': type('') },
 	\	{ 'name': 'shellxquote',  'type': type('') }
 	\ ]
 	let s:shellOptions = filter(s:shellOptions, 'exists("+" . v:val["name"])')

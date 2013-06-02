@@ -31,7 +31,8 @@ endfunction " }}}
 function! s:generateOptionNamesList() " {{{
 	let opts = [
 	\	'shell', 'shellcmdflag', 'shellpipe', 'shellquote', 'shellredir',
-	\	 'shellslash', 'shelltemp', 'shelltype', 'shellxquote'
+	\	'shellslash', 'shelltemp', 'shelltype', 'shellxescape',
+	\	'shellxquote'
 	\ ]
 
 	return filter(opts, 'exists("+" . v:val)')
