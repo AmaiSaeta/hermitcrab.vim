@@ -39,7 +39,7 @@ function! s:generateOptionNamesList() " {{{
 endfunction " }}}
 let s:optionNames = s:generateOptionNamesList()
 
-function! hermitcrab#getShellOptions()
+function! hermitcrab#confirmShell()
 	let opts = {}
 	for optName in s:optionNames
 		execute 'let opts["' . optName . '"] = &' . optName
@@ -49,7 +49,7 @@ function! hermitcrab#getShellOptions()
 endfunction
 
 function! s:setOptions(param)
-	let origin = hermitcrab#getShellOptions()
+	let origin = hermitcrab#confirmShell()
 
 	try
 		" set to default
@@ -71,16 +71,16 @@ endfunction
 function! hermitcrab#switch(arg)
 	try
 		let opts = (type(a:arg) == type({}))
-		\	? a:arg : g:hermitcrab_options[a:arg]
+		\	? a:arg : g:hermitcrab_shells[a:arg]
 	catch /^Vim\%((\a\+)\)\=:E716/
-		throw s:raiseException(a:arg . ' is not found in g:hermitcrab_options.')
+		throw s:raiseException(a:arg . ' is not found in g:hermitcrab_shells.')
 	endtry
 
 	call s:setOptions(opts)
 endfunction
 
 function! hermitcrab#run(name, cmd)
-	let originOpts = hermitcrab#getShellOptions()
+	let originOpts = hermitcrab#confirmShell()
 
 	try
 		call hermitcrab#switch(a:name)
@@ -91,7 +91,7 @@ function! hermitcrab#run(name, cmd)
 endfunction
 
 function! hermitcrab#getCompletion(argLead, cmdline, cursorPos)
-	return join(keys(g:hermitcrab_options), '\n')
+	return join(keys(g:hermitcrab_shells), '\n')
 endfunction
 
 let &cpoptions = s:cpoptions_bak

@@ -26,10 +26,10 @@ INTRODUCTION						*hermitcrab-contents*
 ==============================================================================
 USAGE							*hermitcrab-usage*
 
-前もって|g:hermitcrab_options|辞書変数に設定内容を記述しておきます。例えば次の
-例は、zsh用の設定を"ZSH"という名で、 Windows PowerShell 用の設定を"PS"という名
-で参照出来るようにしています。 >
-	:let g:hermitcrab_options = {
+前もって|g:hermitcrab_shells|辞書変数に設定内容を記述しておきます。例えば次の例
+は、zsh用の設定を"ZSH"という名で、 Windows PowerShell 用の設定を"PS"という名で
+参照出来るようにしています。 >
+	:let g:hermitcrab_shells = {
 	\	'ZSH': {
 	\		'shell': 'zsh',
 	\		'shellcmdflag': '-c',
@@ -53,7 +53,7 @@ USAGE							*hermitcrab-usage*
 <
 
 |:HermitCrabSwitch|や|hermitcrab#switch()|を用いると、シェル関係の設定を
-|g:hermitcrab_options|に定義した内容に一括変更出来ます。 >
+|g:hermitcrab_shells|に定義した内容に一括変更出来ます。 >
 	" PowerShellに変更する例
 	:HermitCrabSwitch PS
 
@@ -77,52 +77,49 @@ INTERFACE						*hermitcrab-interface*
 COMMANDS						*hermitcrab-commands*
 
 :HermitCrabSwitch {name}				*:HermitCrabSwitch*
-	シェル関係の設定を、|g:hermitcrab_options|の内容に基づいて変更します。
-	{name}は|g:hermitcrab_options|のキーの何れかでなければなりません。
+	シェル関係の設定を、|g:hermitcrab_shells|の内容に基づいて変更します。
+	{name}は|g:hermitcrab_shells|のキーの何れかでなければなりません。
 	|hermitcrab#switch()|のコマンド版です。
 
 :HermitCrabRun {name} {command}				*:HermitCrabRun*
-	|g:hermitcrab_options|の{name}の設定で、シェルのコマンド{command}を実行し
+	|g:hermitcrab_shells|の{name}の設定で、シェルのコマンド{command}を実行し
 	ます。
-	{name}は|g:hermitcrab_options|に設定したキーの何れかでなければなりませ
-	ん。
+	{name}は|g:hermitcrab_shells|に設定したキーの何れかでなければなりません。
 	|hermitcrab#run()|のコマンド版です。
 
 ------------------------------------------------------------------------------
 FUNCTIONS						*hermitcrab-functions*
 
 hermitcrab#switch({name})				*hermitcrab#switch()*
-	シェル関係の設定を、|g:hermitcrab_options|の内容に基づいて変更します。
-	{name}は|g:hermitcrab_options|に設定したキーの何れかでなければなりませ
-	ん。
+	シェル関係の設定を、|g:hermitcrab_shells|の内容に基づいて変更します。
+	{name}は|g:hermitcrab_shells|に設定したキーの何れかでなければなりません。
 	|:HermitCrabSwitch|の関数版です。
 
 hermitcrab#switch({options})
 	シェル関係の設定を、引数{options}の内容に基づいて変更します。
-	{options}は|g:hermitcrab_options|の値として設定する辞書と同じフォーマット
+	{options}は|g:hermitcrab_shells|の値として設定する辞書と同じフォーマット
 	です。
 
 hermitcrab#run({name}, {command})			*hermitcrab#run()*
-	|g:hermitcrab_options|の{name}に相当する設定で、シェルのコマンド{command}
+	|g:hermitcrab_shells|の{name}に相当する設定で、シェルのコマンド{command}
 	を実行します。
-	{name}は|g:hermitcrab_options|に設定したキーの何れかでなければなりませ
-	ん。
+	{name}は|g:hermitcrab_shells|に設定したキーの何れかでなければなりません。
 	|:HermitCrabRun|の関数版です。
 
 hermitcrab#run({options}, {command})
 	引数{options}に相当する設定で、シェルのコマンド{command}を実行します。
-	{options}は|g:hermitcrab_options|の値として設定する辞書と同じフォーマ
-	ットです。
+	{options}は|g:hermitcrab_shells|の値として設定する辞書と同じフォーマット
+	です。
 
-hermitcrab#getShellOptions()			 *hermitcrab#getShellOptions()*
+hermitcrab#confirmShell()			 *hermitcrab#confirmShell()*
 	現在のシェル関係の設定の内容を保持した辞書を返します。
-	返される辞書の形式は|g:hermitcrab_options|の値部分と同じ。即ち、名称を
-	キーとし、その設定値を値とする辞書です。
+	返される辞書の形式は|g:hermitcrab_shells|の値部分と同じ。即ち、名称をキー
+	とし、その設定値を値とする辞書です。
 
 ------------------------------------------------------------------------------
 VARIABLES						*hermitcrab-variables*
 
-g:hermitcrab_options					*g:hermitcrab_options*
+g:hermitcrab_shells					*g:hermitcrab_shells*
 	当プラグインで切り替えるシェル関係設定に名前を付けます。
 	辞書変数です。キーはそのシェル関係設定群に付ける名前です。また、値は実
 	際の設定内容になり、それは設定の名称をキーに、設定値を値とする辞書です。
@@ -132,7 +129,7 @@ g:hermitcrab_options					*g:hermitcrab_options*
 	必ず、Vim起動時の値を保持する、そのシェル名('shell'からディレクトリパス
 	を除いた物)をキーとする値が追加されます。
 	以下は、zshとPowerShell用の値を設定する例です。 >
-		:let g:hermitcrab_options = {
+		:let g:hermitcrab_shells = {
 		\	'ZSH': {
 		\		'shell': 'zsh',
 		\		'shellcmdflag': '-c',

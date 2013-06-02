@@ -37,10 +37,10 @@ function! s:getShellNameFromShellOpt(opt)
 	return s:getShellNameFromPath(path)
 endfunction
 
-" Initialized g:hermitcrab_options.
+" Initialized g:hermitcrab_shells.
 function! s:initConfigureVariable()
-let s:defaultOpts = hermitcrab#getShellOptions()
-call s:useVariable('g:hermitcrab_options', 
+let s:defaultOpts = hermitcrab#confirmShell()
+call s:useVariable('g:hermitcrab_shells', 
 \	{ s:getShellNameFromShellOpt(s:defaultOpts['shell']): s:defaultOpts },
 \	1
 \ )

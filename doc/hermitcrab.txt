@@ -26,10 +26,11 @@ latest version:
 ==============================================================================
 USAGE							*hermitcrab-usage*
 
-You need what set configs to the dictionary variable that named |g:hermitcrab_options|.
+You need what set configs to the dictionary variable that named
+|g:hermitcrab_shells|.
 e.g. set 2 configs; zsh's config named "ZSH", Windows PowerShell's config
 named "PS". >
-	:let g:hermitcrab_options = {
+	:let g:hermitcrab_shells = {
 	\	'ZSH': {
 	\		'shell': 'zsh',
 	\		'shellcmdflag': '-c',
@@ -53,7 +54,7 @@ named "PS". >
 <
 
 By using |:HermitCrabSwitch| or |hermitcrab#switch()|, you can change the shell
-options in |g:hermitcrab_options|. >
+options in |g:hermitcrab_shells|. >
 	" e.g. Change for PowerShell
 	:HermitCrabSwitch PS
 
@@ -77,50 +78,50 @@ INTERFACE						*hermitcrab-interface*
 COMMANDS						*hermitcrab-commands*
 
 :HermitCrabSwitch {name}				*:HermitCrabSwitch*
-	Change the shell options based on the value of |g:hermitcrab_options|.
-	{name} must be a key that exists in |g:hermitcrab_options|.
+	Change the shell options based on the value of |g:hermitcrab_shells|.
+	{name} must be a key that exists in |g:hermitcrab_shells|.
 	This is the command version of |hermitcrab#switch()|.
 
 :HermitCrabRun {name} {command}				*:HermitCrabRun*
 	Execute the {command} in the shell that is a setting named {name} in
-	|g:hermitcrab_options|.
-	{name} must be a key that exists in |g:hermitcrab_options|.
+	|g:hermitcrab_shells|.
+	{name} must be a key that exists in |g:hermitcrab_shells|.
 	This is the command version of |hermitcrab#run()|.
 
 ------------------------------------------------------------------------------
 FUNCTIONS						*hermitcrab-functions*
 
 hermitcrab#switch({name})				*hermitcrab#switch()*
-	Change the shell options based on the value of |g:hermitcrab_options|.
-	{name} must be a key that exists in |g:hermitcrab_options|.
+	Change the shell options based on the value of |g:hermitcrab_shells|.
+	{name} must be a key that exists in |g:hermitcrab_shells|.
 	This is the function version of |:HermitCrabSwitch|.
 
 hermitcrab#switch({options})
-	Change the shell options based on the value of |g:hermitcrab_options|.
+	Change the shell options based on the value of |g:hermitcrab_shells|.
 	{options} is a dictionary that is same of the value of
-	|g:hermitcrab_options|.
+	|g:hermitcrab_shells|.
 
 hermitcrab#run({name}, {command})			*hermitcrab#run()*
 	Execute the {command} in the shell that is a setting named {name} in
-	|g:hermitcrab_options|.
-	{name} must be a key that exists in |g:hermitcrab_options|.
+	|g:hermitcrab_shells|.
+	{name} must be a key that exists in |g:hermitcrab_shells|.
 	This is the function version of |:HermitCrabRun|.
 
 hermitcrab#run({options}, {command})
 	Execute the {command} in the shell that is a setting named {name} in
-	|g:hermitcrab_options|.
+	|g:hermitcrab_shells|.
 	{options} is a dictionary that is same of the value of
-	|g:hermitcrab_options|.
+	|g:hermitcrab_shells|.
 
-hermitcrab#getShellOptions()			 *hermitcrab#getShellOptions()*
+hermitcrab#confirmShell()			 *hermitcrab#confirmShell()*
 	Returned the dictionary that contains the shell options at now.
-	The dictionary's format is same of the value of |g:hermitcrab_options|,
+	The dictionary's format is same of the value of |g:hermitcrab_shells|,
 	that is a dictionary keyed by name, and the value the settings.
 
 ------------------------------------------------------------------------------
 VARIABLES						*hermitcrab-variables*
 
-g:hermitcrab_options					*g:hermitcrab_options*
+g:hermitcrab_shells					*g:hermitcrab_shells*
 	Provide names for the shell options used in this plugin.
 	This is a dictionary variable. The keys are names of shell options'
 	group. And The values are configs that is dictionary, The keys are
@@ -132,7 +133,7 @@ g:hermitcrab_options					*g:hermitcrab_options*
 	(excluded directory path of 'shell').
 	e.g. set 2 configs; zsh's config named "ZSH", Windows PowerShell's
 	config named "PS". >
-		:let g:hermitcrab_options = {
+		:let g:hermitcrab_shells = {
 		\	'ZSH': {
 		\		'shell': 'zsh',
 		\		'shellcmdflag': '-c',

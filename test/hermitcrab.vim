@@ -47,7 +47,7 @@ endfunction " }}}
 
 function! s:refugeVariables(suite)
 	let a:suite._refuges = {
-	\	'g:hermitcrab_options': deepcopy(g:hermitcrab_options)
+	\	'g:hermitcrab_shells': deepcopy(g:hermitcrab_shells)
 	\ }
 
 	let a:suite._refuges.shellopts = {}
@@ -56,7 +56,7 @@ function! s:refugeVariables(suite)
 	endfor
 endfunction
 function! s:repairVariables(suite)
-	let g:hermitcrab_options = a:suite._refuges['g:hermitcrab_options']
+	let g:hermitcrab_shells = a:suite._refuges['g:hermitcrab_shells']
 	
 	for name in keys(a:suite._refuges.shellopts)
 		execute 'let &' . name . '= a:suite._refuges.shellopts["' . name . '"]'
@@ -99,9 +99,9 @@ function! s:generateDummyOptions(shelltype, shellslash, shelltemp) " {{{
 endfunction " }}}
 
 function! s:setDummyOption(name) " {{{
-	let origin = deepcopy(g:hermitcrab_options)
+	let origin = deepcopy(g:hermitcrab_shells)
 	let dummy = s:generateDummyOptions(!&shelltype, !&shellslash, !&shelltemp)
-	call extend(g:hermitcrab_options, {a:name : dummy})
+	call extend(g:hermitcrab_shells, {a:name : dummy})
 	return origin
 endfunction " }}}
 
@@ -120,10 +120,10 @@ endfunction
 function! s:suite.test_defaultVariableValues()
 	let expected = s:getShellOptions()
 	let existsSame = 0
-	for key in keys(g:hermitcrab_options)
-		if g:hermitcrab_options[key] == expected
+	for key in keys(g:hermitcrab_shells)
+		if g:hermitcrab_shells[key] == expected
 			call self.assert.equals_M(
-			\	g:hermitcrab_options[key], expected, key . ' is different')
+			\	g:hermitcrab_shells[key], expected, key . ' is different')
 			return
 		endif
 	endfor
@@ -131,7 +131,7 @@ function! s:suite.test_defaultVariableValues()
 	call self.assert.fail(
 	\	"Default setting is not found:\n"
 	\	. "\tsearched: " . string(expected) . "\n"
-	\	. "\tg:hermitcrab_options: " . string(g:hermitcrab_options))
+	\	. "\tg:hermitcrab_shells: " . string(g:hermitcrab_shells))
 endfunction
 " }}}
 
@@ -148,27 +148,27 @@ function! s:suite.teardown()
 endfunction
 
 function! s:suite.test_HermitCrabSwitch_switchoExistsName()
-	let defaultOption = g:hermitcrab_options[
-	\	keys(g:hermitcrab_options)[0]
+	let defaultOption = g:hermitcrab_shells[
+	\	keys(g:hermitcrab_shells)[0]
 	\ ]
 
 	HermitCrabSwitch DUMMY
 
 	let actualOptions = s:getShellOptions()
 
-	call self.assert.equals(g:hermitcrab_options['DUMMY'], actualOptions)
+	call self.assert.equals(g:hermitcrab_shells['DUMMY'], actualOptions)
 endfunction
 
 function! s:suite.test_HermitCrabSwitch_switchToNotExistsName()
 	let origin = s:getShellOptions()
 	
-	"call self.assert.throw("hermitcrab.vim\tdescription:DUMMY is not found in g:hermitcrab_options.")
+	"call self.assert.throw("hermitcrab.vim\tdescription:DUMMY is not found in g:hermitcrab_shells.")
 	let raisedException = 0
 	try
 		HermitCrabSwitch NOTHING
 	catch
 		let raisedException = 1
-		call self.assert.equals(v:exception, "hermitcrab.vim\tdescription:NOTHING is not found in g:hermitcrab_options.")
+		call self.assert.equals(v:exception, "hermitcrab.vim\tdescription:NOTHING is not found in g:hermitcrab_shells.")
 	finally
 		call self.assert.true(raisedException)
 	endtry
@@ -214,7 +214,7 @@ function! s:suite.test_HermitCrabRun_shellOptionsIsNotChange()
 endfunction
 
 function! s:suite.test_HermitCrabRun_callNotExistsCommand()
-	let name = keys(g:hermitcrab_options)[0]
+	let name = keys(g:hermitcrab_shells)[0]
 	" When run a NON EXISTS command, HermitCrabRun is NOT raised an error.
 	" This behavior is modeled on :! .
 	execute 'HermitCrabRun ' . name . ' notexistscommand'
@@ -343,7 +343,7 @@ function! s:suite.test_hermitcrab_run_setFailureValue()
 endfunction
 " }}}
 
-let s:suite = vimtest#new('Test for hermitcrab#getShellOptions()') " {{{
+let s:suite = vimtest#new('Test for hermitcrab#confirmShell()') " {{{
 function! s:suite.startup()
 	call s:initValues()
 endfunction
@@ -355,14 +355,14 @@ function! s:suite.teardown()
 	call s:repairVariables(self)
 endfunction
 
-function! s:suite.test_hermitcrab_getShellOptions()
+function! s:suite.test_hermitcrab_confirmShell()
 	call self.assert.equals(
-	\	hermitcrab#getShellOptions(), s:getShellOptions())
+	\	hermitcrab#confirmShell(), s:getShellOptions())
 
 	HermitCrabSwitch DUMMY
 
 	call self.assert.equals(
-	\	hermitcrab#getShellOptions(), s:getShellOptions())
+	\	hermitcrab#confirmShell(), s:getShellOptions())
 endfunction
 " }}}
 
@@ -372,7 +372,7 @@ function! s:suite.startup()
 endfunction
 function! s:suite.test_hermitcrab_getCompletion()
 	let names = []
-	for name in keys(g:hermitcrab_options)
+	for name in keys(g:hermitcrab_shells)
 		call add(names, name)
 	endfor
 	let expected = join(names, '\n')
