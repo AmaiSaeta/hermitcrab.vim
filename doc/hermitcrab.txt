@@ -125,7 +125,9 @@ g:hermitcrab_options					*g:hermitcrab_options*
 	This is a dictionary variable. The keys are names of shell options'
 	group. And The values are configs that is dictionary, The keys are
 	option's names, and the values are values of the option.
-	For setting omitted at the inner dictionary, used Vim default value.
+	As 'shelltemp', the option toggling to enable/disable, use 1 to enable,
+	0 to disable. For setting omitted at the inner dictionary, used Vim
+	default value.
 	Always, added value of Vim startup time, named the its shell name
 	(excluded directory path of 'shell').
 	e.g. set 2 configs; zsh's config named "ZSH", Windows PowerShell's
