@@ -9,30 +9,23 @@ scriptencoding utf-8
 " 	:VimTest
 
 function! s:initValues() " {{{
-	let s:isWin = has('win64') || has('win32') || has('win16') || has('win95')
-	let s:isDos = has('dos32') || has('dos16')
-
 	" Some options are environment dependeny.
 	" [WARNING] Dependent the environment (OS etc.).
 	" [WARNING] If tests are completly succeeded on the one environment,
 	" [WARNING] but other environments possibly failed tests .
+	" [TODO] If the option for shell is added, please adding this array!
 	let s:shellOptions = [
 	\	{ 'name': 'shell',        'type': type('') },
 	\	{ 'name': 'shellcmdflag', 'type': type('') },
+	\	{ 'name': 'shellpipe',    'type': type('') },
+	\	{ 'name': 'shellslash',   'type': type(1) },
+	\	{ 'name': 'shelltype',    'type': type(1) },
 	\	{ 'name': 'shellquote',   'type': type('') },
 	\	{ 'name': 'shellredir',   'type': type('') },
 	\	{ 'name': 'shelltemp',    'type': type(1) },
 	\	{ 'name': 'shellxquote',  'type': type('') }
 	\ ]
-	if has('quickfix')
-		call add(s:shellOptions, { 'name': 'shellpipe', 'type': type('') })
-	endif
-	if s:isWin || s:isDos || has('os2')
-		call add(s:shellOptions, { 'name': 'shellslash', 'type': type(1) })
-	endif
-	if has('amiga')
-		call add(s:shellOptions, { 'name': 'shelltype', 'type': type(1) })
-	endif
+	let s:shellOptions = filter(s:shellOptions, 'exists("+" . v:val["name"])')
 endfunction " }}}
 
 " Print optional description when failing test.

@@ -30,23 +30,11 @@ endfunction " }}}
 " [TODO] If the option for shell is added, please adding this array!
 function! s:generateOptionNamesList() " {{{
 	let opts = [
-	\	'shell', 'shellcmdflag', 'shellquote', 'shellredir',
-	\	'shelltemp', 'shellxquote'
+	\	'shell', 'shellcmdflag', 'shellpipe', 'shellquote', 'shellredir',
+	\	 'shellslash', 'shelltemp', 'shelltype', 'shellxquote'
 	\ ]
 
-	" Some options are environment dependency.
-	if has('quickfix')
-		call add(opts, 'shellpipe')
-	endif
-	if has('win64') || has('win32') || has('win16') || has('win95')
-	\	|| has('dos32') || has('dos16') || has('os2')
-		call add(opts, 'shellslash')
-	endif
-	if has('amiga')
-		call add(opts, 'shelltype')
-	endif
-
-	return opts
+	return filter(opts, 'exists("+" . v:val)')
 endfunction " }}}
 let s:optionNames = s:generateOptionNamesList()
 
