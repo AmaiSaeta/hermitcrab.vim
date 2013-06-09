@@ -54,7 +54,7 @@ autocmd VimEnter * call s:initConfigureVariable()
 
 function! s:switchShellAtOnce(cmd)
 	let name = matchstr(a:cmd, '^\S\+')
-	let cmd = matchstr(a:cmd, '^\S\+\s+\zs')
+	let cmd = matchstr(a:cmd, '^\S\+\s\+\zs.*$')
 	call hermitcrab#run(name, cmd)
 endfunction
 
