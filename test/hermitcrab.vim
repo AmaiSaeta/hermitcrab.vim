@@ -8,6 +8,12 @@ scriptencoding utf-8
 " Run tests
 " 	:VimTest
 
+" Generate UID value.
+function! s:generateUID() " {{{
+	let s:uid = exists('s:uid') ? s:uid + 1 : 0
+	return string(s:uid)
+endfunction " }}}
+
 function! s:initValues() " {{{
 	" Some options are environment dependeny.
 	" [WARNING] Dependent the environment (OS etc.).
@@ -43,6 +49,14 @@ function! s:vimtest_assertEquals_M(expected, actual, failureDesc) dict " {{{
 		call self.fail(printf('%s: %s != %s',
 		\	a:failureDesc, string(a:expected), string(a:actual)))
 	endtry
+endfunction " }}}
+
+" Compare the file and text assertion.
+function! s:vimtest_assertCompareToFile(expectedFilePath, actual) dict " {{{
+	call self.equals(
+	\	join(readfile(a:expectedFilePath)),
+	\	a:actual
+	\ )
 endfunction " }}}
 
 function! s:refugeVariables(suite)
@@ -340,6 +354,86 @@ function! s:suite.test_hermitcrab_run_setFailureValue()
 	call self.assert.equals(s:getShellOptions(), origin)
 
 	execute 'language messages' origLang
+endfunction
+" }}}
+
+let s:suite = vimtest#new('Test for hermitcrab#call()') " {{{
+function! s:suite.setup()
+	call s:refugeVariables(self)
+	let self._command = 'vim --version'
+	let self._tmpFileName = tempname()
+	let self._commandWithStdin
+	\	= printf('vim -u NONE -U NONE -i NONE -c "wq! %s" -',
+	\		escape(self._tmpFileName, ' '))
+	let self.assert.compareToFile
+	\	= function('s:vimtest_assertCompareToFile')
+endfunction
+function! s:suite.teardown()
+	call s:repairVariables(self)
+	call delete(self._tmpFileName)
+endfunction
+
+" [TODO] hermitcrab#call()'s 3rd argument's test; How do I test it at
+" [TODO] environment independent?
+
+function! s:suite.test_hermitcrab_call_useName()
+	let origOpts = s:getShellOptions()
+	let nowShellName = matchstr(&shell, '\(/\|\\\)\zs[^/\\]\+$')
+	call s:setDummyOption('DUMMY')
+
+	" use exists
+	let expected = system(self._command)
+	let actual   = hermitcrab#call(nowShellName, self._command)
+	call self.assert.equals(expected, actual)
+	call self.assert.equals(0, v:shell_error)
+
+	" use non-exists
+	let raisedError = 0
+	try
+		let res = hermitcrab#call('DUMMY', self._command)
+	catch " Raised error when using non-exists shell.
+		let raisedError = 1
+	endtry
+	if !raisedError
+		call self.assert.fail('Not raised error.')
+	endif
+	call self.assert.equals(origOpts, s:getShellOptions())
+
+	" use 3 arguments.
+	let actual = s:generateUID()
+	call hermitcrab#call(nowShellName, self._commandWithStdin, actual)
+	call self.assert.compareToFile(self._tmpFileName, actual)
+	call self.assert.equals(0, v:shell_error)
+endfunction
+
+function! s:suite.test_hermitcrab_call_useDictionary()
+	let origin = s:getShellOptions()
+
+	" use valid (default) options
+	let expected = system(self._command)
+	let actual = hermitcrab#call(origin, self._command)
+	call self.assert.equals(0, v:shell_error)
+	call self.assert.equals(expected, actual)
+
+	" use invalid options
+	let raisedError = 0
+	let opts = s:generateDummyOptions(
+	\	!&shelltype, !&shellslash, !&shelltemp)
+	try
+		let res = hermitcrab#call(opts, self._command)
+	catch
+		let raisedError = 1
+	endtry
+	if !raisedError
+		call self.assert.failed('Not raised error.')
+	endif
+	call self.assert.equals(origin, s:getShellOptions())
+
+	" use 3 arguments.
+	let actual = s:generateUID()
+	call hermitcrab#call(origin, self._commandWithStdin, actual)
+	call self.assert.compareToFile(self._tmpFileName, actual)
+	call self.assert.equals(0, v:shell_error)
 endfunction
 " }}}
 

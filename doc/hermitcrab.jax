@@ -60,14 +60,17 @@ USAGE							*hermitcrab-usage*
 	:set shell?	" == 'powershell.exe'
 <
 
-|:HermitCrabRun|や|hermitcrab#run()|で、任意シェルでコマンドを実行する事が出来
-ます。 >
+|:HermitCrabRun|や|hermitcrab#run()|、|hermitcrab#call()|で、任意シェルでコマンドを実
+行する事が出来ます。 >
 	let engine = &shell
 
-	" zshでlsコマンドを実行
+	" zshでlsコマンドを実行 (:!に相当)
 	:HermitCrabRun ZSH ls
 
 	echo engine == &shell	" == 1; コマンド/関数実行後は元の設定に戻ります
+
+	" zshでlsコマンドを実行 (system()に相当)
+	:let result = hermitcrab#call('ZSH', 'ls')
 <
 
 ==============================================================================
@@ -85,7 +88,7 @@ COMMANDS						*hermitcrab-commands*
 	|g:hermitcrab_shells|の{name}の設定で、シェルのコマンド{command}を実行し
 	ます。
 	{name}は|g:hermitcrab_shells|に設定したキーの何れかでなければなりません。
-	|hermitcrab#run()|のコマンド版です。
+	|:!|に相当します。|hermitcrab#run()|のコマンド版です。
 
 ------------------------------------------------------------------------------
 FUNCTIONS						*hermitcrab-functions*
@@ -110,6 +113,22 @@ hermitcrab#run({options}, {command})
 	引数{options}に相当する設定で、シェルのコマンド{command}を実行します。
 	{options}は|g:hermitcrab_shells|の値として設定する辞書と同じフォーマット
 	です。
+
+hermitcrab#call({name}, {command} [, {input}])		*hermitcrab#call()*
+	|g:hermitcrab_shells|の{name}に相当する設定で、シェルのコマンド{command}
+	を実行し、その結果を返します。
+	{name}は|g:hermitcrab_shells|に設定したキーの何れかでなければなりませ
+	ん。
+	{input}が与えられた場合、その文字列を標準入力として扱います。
+	|system()|に相当します。
+
+hermitcrab#call({options}, {command} [, {input}])
+	引数{options}に相当する設定で、シェルのコマンド{command}を実行し、その
+	結果を返します。
+	{options}は|g:hermitcrab_shells|の値として設定する辞書と同じフォーマッ
+	トです。
+	{input}が与えられた場合、その文字列を標準入力として扱います。
+	|system()|に相当します。
 
 hermitcrab#confirmShell()			 *hermitcrab#confirmShell()*
 	現在のシェル関係の設定の内容を保持した辞書を返します。

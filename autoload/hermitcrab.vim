@@ -90,6 +90,22 @@ function! hermitcrab#run(name, cmd)
 	endtry
 endfunction
 
+function! hermitcrab#call(opt, ...)
+	let originOpts = hermitcrab#confirmShell()
+
+	try
+		call hermitcrab#switch(a:opt)
+		let res = eval(printf("system('%s' %s)",
+		\	a:1,
+		\	(a:0 > 1) ? ", '" . a:2 . "'" : ''
+		\ ))
+	finally
+		call s:setOptions(originOpts)
+	endtry
+
+	return res
+endfunction
+
 function! hermitcrab#getCompletion(argLead, cmdline, cursorPos)
 	return join(keys(g:hermitcrab_shells), '\n')
 endfunction

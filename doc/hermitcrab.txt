@@ -61,14 +61,17 @@ options in |g:hermitcrab_shells|. >
 	:set shell?	" == 'powershell.exe'
 <
 
-By using |:HermitCrabRun| or |hermitcrab#run()|, you can execute a command in the
-shell of your choice. >
+By using |:HermitCrabRun|, |hermitcrab#run()| or |hermitcrab#call()| you can execute
+a command in the shell of your choice. >
 	let engine = &shell
 
-	" Execute "ls" command in zsh
+	" Execute "ls" command in zsh (correspond :!)
 	:HermitCrabRun ZSH ls
 
 	echo engine == &shell	" == 1; Repair original configs after the command/function.
+
+	" Execute "ls" command in zsh (correspond system())
+	:let result = hermitcrab#call('ZSH', 'ls')
 <
 
 ==============================================================================
@@ -86,7 +89,7 @@ COMMANDS						*hermitcrab-commands*
 	Execute the {command} in the shell that is a setting named {name} in
 	|g:hermitcrab_shells|.
 	{name} must be a key that exists in |g:hermitcrab_shells|.
-	This is the command version of |hermitcrab#run()|.
+	This correspond to |:!|. This is the command version of |hermitcrab#run()|.
 
 ------------------------------------------------------------------------------
 FUNCTIONS						*hermitcrab-functions*
@@ -112,6 +115,20 @@ hermitcrab#run({options}, {command})
 	|g:hermitcrab_shells|.
 	{options} is a dictionary that is same of the value of
 	|g:hermitcrab_shells|.
+
+hermitcrab#call({name}, {command} [, {input}])		*hermitcrab#call()*
+	Get the output of the {command} with the shell that is a settings named
+	{name} in |g:hermitcrab_shells|.
+	{name} must be a key that exists in |g:hermitcrab_shells|.
+	When {input} is given, this string passed as STDIN to the command.
+	This correspond to |system()|.
+
+hermitcrab#call({options}, {command} [, {input}])
+	Return the output of the {command} with the shell by using {options}.
+	{options} is a dictionary that is same of the value of
+	|g:hermitcrab_shells|.
+	When {input} is given, this string passed as STDIN to the command.
+	This correspond to |system()|.
 
 hermitcrab#confirmShell()			 *hermitcrab#confirmShell()*
 	Returned the dictionary that contains the shell options at now.
