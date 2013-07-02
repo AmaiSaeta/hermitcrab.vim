@@ -27,8 +27,8 @@ INTRODUCTION						*hermitcrab-contents*
 USAGE							*hermitcrab-usage*
 
 前もって|g:hermitcrab_shells|辞書変数に設定内容を記述しておきます。例えば次の例
-は、zsh用の設定を"ZSH"という名で、 Windows PowerShell 用の設定を"PS"という名で
-参照出来るようにしています。 >
+は、zsh用の設定を"ZSH"という名で、bash用の設定を"BASH"という名で参照出来るよう
+にしています。 >
 	:let g:hermitcrab_shells = {
 	\	'ZSH': {
 	\		'shell': 'zsh',
@@ -39,15 +39,16 @@ USAGE							*hermitcrab-usage*
 	\		'shelltemp': 0,
 	\		'shellxquote': ''
 	\	},
-	\	'PS': {
-	\		'shell': 'powershell.exe',
-	\		'shellcmdflag: '-NoLogo -NonInteractive -Command',
-	\		'shellpipe': '>%s 2>&1',
+	\	'BASH': {
+	\		'shell': 'bash',
+	\		'shellcmdflag: '-c',
+	\		'shellpipe': '2>&1| tee',
 	\		'shellquote': '',
 	\		'shellredir': '>%s 2>&1',
-	\		'shellslash': 0,
+	\		'shellslash': 1,
 	\		'shelltemp': 1,
-	\		'shellxquote': ''
+	\		'shellxquote': '',
+	\		'shellxescape': ''
 	\	}
 	\ }
 <
@@ -147,7 +148,7 @@ g:hermitcrab_shells					*g:hermitcrab_shells*
 	ます。
 	必ず、Vim起動時の値を保持する、そのシェル名('shell'からディレクトリパス
 	を除いた物)をキーとする値が追加されます。
-	以下は、zshとPowerShell用の値を設定する例です。 >
+	以下は、zshとbash用の値を設定する例です。 >
 		:let g:hermitcrab_shells = {
 		\	'ZSH': {
 		\		'shell': 'zsh',
@@ -160,16 +161,16 @@ g:hermitcrab_shells					*g:hermitcrab_shells*
 		\		'shellxquote': '',
 		\		'shellxescape': ''
 		\	},
-		\	'PS': {
-		\		'shell': 'powershell.exe',
-		\		'shellcmdflag: '-NoLogo -NonInteractive -Command',
-		\		'shellpipe': '>%s 2>&1',
+		\	'BASH': {
+		\		'shell': 'bash',
+		\		'shellcmdflag: '-c',
+		\		'shellpipe': '2>&1| tee',
 		\		'shellquote': '',
 		\		'shellredir': '>%s 2>&1',
-		\		'shellslash': 0,
+		\		'shellslash': 1,
 		\		'shelltemp': 1,
-		\		'shellxquote': '(',
-		\		'shellxescape': '"&|<>()@^'
+		\		'shellxquote': '',
+		\		'shellxescape': ''
 		\	}
 		\ }
 <

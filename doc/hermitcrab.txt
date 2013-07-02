@@ -28,8 +28,7 @@ USAGE							*hermitcrab-usage*
 
 You need what set configs to the dictionary variable that named
 |g:hermitcrab_shells|.
-e.g. set 2 configs; zsh's config named "ZSH", Windows PowerShell's config
-named "PS". >
+e.g. set 2 configs; zsh's config named "ZSH", bash's config named "BASH". >
 	:let g:hermitcrab_shells = {
 	\	'ZSH': {
 	\		'shell': 'zsh',
@@ -40,15 +39,16 @@ named "PS". >
 	\		'shelltemp': 0,
 	\		'shellxquote': ''
 	\	},
-	\	'PS': {
-	\		'shell': 'powershell.exe',
-	\		'shellcmdflag: '-NoLogo -NonInteractive -Command',
-	\		'shellpipe': '>%s 2>&1',
+	\	'BASH': {
+	\		'shell': 'bash',
+	\		'shellcmdflag: '-c',
+	\		'shellpipe': '2>&1| tee',
 	\		'shellquote': '',
 	\		'shellredir': '>%s 2>&1',
-	\		'shellslash': 0,
+	\		'shellslash': 1,
 	\		'shelltemp': 1,
-	\		'shellxquote': ''
+	\		'shellxquote': '',
+	\		'shellxescape': ''
 	\	}
 	\ }
 <
@@ -148,8 +148,7 @@ g:hermitcrab_shells					*g:hermitcrab_shells*
 	default value.
 	Always, added value of Vim startup time, named the its shell name
 	(excluded directory path of 'shell').
-	e.g. set 2 configs; zsh's config named "ZSH", Windows PowerShell's
-	config named "PS". >
+	e.g. set 2 configs; zsh's config named "ZSH", bash's config named "BASH". >
 		:let g:hermitcrab_shells = {
 		\	'ZSH': {
 		\		'shell': 'zsh',
@@ -162,16 +161,16 @@ g:hermitcrab_shells					*g:hermitcrab_shells*
 		\		'shellxquote': '',
 		\		'shellxescape': ''
 		\	},
-		\	'PS': {
-		\		'shell': 'powershell.exe',
-		\		'shellcmdflag: '-NoLogo -NonInteractive -Command',
-		\		'shellpipe': '>%s 2>&1',
+		\	'BASH': {
+		\		'shell': 'bash',
+		\		'shellcmdflag: '-c',
+		\		'shellpipe': '2>&1| tee',
 		\		'shellquote': '',
 		\		'shellredir': '>%s 2>&1',
-		\		'shellslash': 0,
+		\		'shellslash': 1,
 		\		'shelltemp': 1,
-		\		'shellxquote': '(',
-		\		'shellxescape': '"&|<>()@^'
+		\		'shellxquote': '',
+		\		'shellxescape': ''
 		\	}
 		\ }
 <
