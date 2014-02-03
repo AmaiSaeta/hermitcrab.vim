@@ -178,6 +178,11 @@ g:hermitcrab_shells					*g:hermitcrab_shells*
 ==============================================================================
 CHANGELOG						*hermitcrab-changelog*
 
+1.01.20140204
+	- Changed the process that set options.
+	  - Removal of the possibility of infinite loop.
+	  - Efficiency of the processing.
+	- Fixed to be had forgotten to escape. [test]
 1.00.20130703
 	- The first release!
 
