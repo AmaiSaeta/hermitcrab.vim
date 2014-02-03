@@ -73,7 +73,7 @@ function! s:repairVariables(suite)
 	let g:hermitcrab_shells = a:suite._refuges['g:hermitcrab_shells']
 	
 	for name in keys(a:suite._refuges.shellopts)
-		execute 'let &' . name . '= a:suite._refuges.shellopts["' . name . '"]'
+		execute printf('let &%s="%s"', name, escape(a:suite._refuges.shellopts[name], '"\'))
 	endfor
 endfunction
 
