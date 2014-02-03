@@ -50,20 +50,28 @@ endfunction
 
 function! s:setOptions(param)
 	let origin = hermitcrab#confirmShell()
+	let lastName = ''
 
 	try
-		" set to default
 		for name in s:optionNames
-			execute 'set' name . '&'
-		endfor
-
-		" overwite
-		for key in keys(a:param)
-			execute 'let &' . key '="' . escape(a:param[key], '\') . '"'
+			if has_key(a:param, name)
+				" overwite
+				execute printf('let &%s="%s"', name, escape(a:param[name], '"\'))
+			else
+				" set to default
+				execute 'set' name . '&'
+			endif
+			let lastName = name
 		endfor
 	catch
 		" rollback
-		call s:setOptions(origin)
+		for name in s:optionNames
+			if name ==# lastName
+				execute printf('set %s=%s', name, origin[name])
+			else
+				break
+			endif
+		endfor
 		throw s:raiseException()
 	endtry
 endfunction
