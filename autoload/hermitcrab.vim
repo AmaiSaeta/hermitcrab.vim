@@ -115,7 +115,7 @@ function! hermitcrab#call(opt, ...)
 endfunction
 
 function! hermitcrab#getCompletion(argLead, cmdline, cursorPos)
-	return join(keys(g:hermitcrab_shells), '\n')
+	return join(keys(g:hermitcrab_shells), "\n")
 endfunction
 
 let &cpoptions = s:cpoptions_bak

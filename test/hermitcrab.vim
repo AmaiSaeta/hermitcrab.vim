@@ -469,7 +469,7 @@ function! s:suite.test_hermitcrab_getCompletion()
 	for name in keys(g:hermitcrab_shells)
 		call add(names, name)
 	endfor
-	let expected = join(names, '\n')
+	let expected = join(names, "\n")
 
 	call self.assert.equals(hermitcrab#getCompletion('','',0), expected)
 	" [TODO] Exclude multiple argument complition (like :edit).
