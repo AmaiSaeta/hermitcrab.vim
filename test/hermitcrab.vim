@@ -400,6 +400,8 @@ function! s:suite.test_hermitcrab_call_useName()
 	call self.assert.equals(origOpts, s:getShellOptions())
 
 	" use 3 arguments.
+	" Assertion failed? When you use the Sandbox on your system, please
+	" tern off it, and retry!
 	let actual = s:generateUID()
 	call hermitcrab#call(nowShellName, self._commandWithStdin, actual)
 	call self.assert.compareToFile(self._tmpFileName, actual)
@@ -430,6 +432,8 @@ function! s:suite.test_hermitcrab_call_useDictionary()
 	call self.assert.equals(origin, s:getShellOptions())
 
 	" use 3 arguments.
+	" Assertion failed? When you use the Sandbox on your system, please
+	" tern off it, and retry!
 	let actual = s:generateUID()
 	call hermitcrab#call(origin, self._commandWithStdin, actual)
 	call self.assert.compareToFile(self._tmpFileName, actual)
