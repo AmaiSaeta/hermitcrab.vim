@@ -178,6 +178,10 @@ g:hermitcrab_shells					*g:hermitcrab_shells*
 ==============================================================================
 CHANGELOG						*hermitcrab-changelog*
 
+1.02.20140326
+	- Fixed commands' completion.
+	- (For the test code) Added the annnotated comments about the failure
+	  that security softwares effect.
 1.01.20140204
 	- Changed the process that set options.
 	  - Removal of the possibility of infinite loop.
