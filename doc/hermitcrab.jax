@@ -55,10 +55,10 @@ USAGE							*hermitcrab-usage*
 
 |:HermitCrabSwitch|や|hermitcrab#switch()|を用いると、シェル関係の設定を
 |g:hermitcrab_shells|に定義した内容に一括変更出来ます。 >
-	" PowerShellに変更する例
-	:HermitCrabSwitch PS
+	" Zshに変更する例
+	:HermitCrabSwitch ZSH
 
-	:set shell?	" == 'powershell.exe'
+	:set shell?	" == 'zsh'
 <
 
 |:HermitCrabRun|や|hermitcrab#run()|、|hermitcrab#call()|で、任意シェルでコマンドを実

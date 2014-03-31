@@ -55,10 +55,10 @@ e.g. set 2 configs; zsh's config named "ZSH", bash's config named "BASH". >
 
 By using |:HermitCrabSwitch| or |hermitcrab#switch()|, you can change the shell
 options in |g:hermitcrab_shells|. >
-	" e.g. Change for PowerShell
-	:HermitCrabSwitch PS
+	" e.g. Change for Zsh
+	:HermitCrabSwitch ZSH
 
-	:set shell?	" == 'powershell.exe'
+	:set shell?	" == 'zsh'
 <
 
 By using |:HermitCrabRun|, |hermitcrab#run()| or |hermitcrab#call()| you can execute
